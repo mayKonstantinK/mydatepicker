@@ -81,6 +81,7 @@ export class MyDatePicker implements OnChanges, ControlValueAccessor, OnDestroy 
 
     // Default options
     opts: IMyOptions = {
+        yearMode: <boolean> false,
         dayLabels: <IMyDayLabels> {},
         monthLabels: <IMyMonthLabels> {},
         dateFormat: <string> "",
@@ -227,8 +228,9 @@ export class MyDatePicker implements OnChanges, ControlValueAccessor, OnDestroy 
         let yc: boolean = cell.year !== this.visibleMonth.year;
         this.visibleMonth = {monthTxt: this.visibleMonth.monthTxt, monthNbr: this.visibleMonth.monthNbr, year: cell.year};
         this.generateCalendar(this.visibleMonth.monthNbr, cell.year, yc);
-        this.selectYear = false;
-        this.selectorEl.nativeElement.focus();
+
+        this.selectDate({year: cell.year, month: 1, day: 1}, CalToggle.CloseByDateSel);
+        this.resetMonthYearSelect();
     }
 
     onYearCellKeyDown(event: any, cell: IMyCalendarYear) {
@@ -510,6 +512,22 @@ export class MyDatePicker implements OnChanges, ControlValueAccessor, OnDestroy 
 
         this.setVisibleMonth();
         this.calendarToggle.emit(reason);
+
+        setTimeout(() => {
+            if (this.options.yearMode) {
+                this.selectYear = true;
+                this.selectMonth = false;
+
+                this.disableTodayBtn = true;
+                this.prevMonthDisabled = true;
+                this.nextMonthDisabled = true;
+                this.prevYearDisabled = true;
+                this.nextYearDisabled = true;
+
+                this.cdr.detectChanges();
+                this.generateYears(Number(this.visibleMonth.year));
+            }
+        }, 0);
     }
 
     closeSelector(reason: number): void {
